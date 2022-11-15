@@ -11,7 +11,7 @@ import java.util.Map;
 @SuppressWarnings("unused")
 @RestController
 @RequestMapping("/api/antifraud")
-public class FraudController {
+public class TransactionController {
 
     @PostMapping("/transaction")
     public ResponseEntity<?> checkTransaction(@RequestBody Map<String, String> input) {
