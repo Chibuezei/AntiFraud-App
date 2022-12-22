@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -15,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity(debug = false)
 //@EnableGlobalMethodSecurity(prePostEnabled = true)
 
 public class WebSecure extends WebSecurityConfigurerAdapter {
@@ -49,16 +48,19 @@ public class WebSecure extends WebSecurityConfigurerAdapter {
                 .csrf().disable().headers().frameOptions().disable() // for Postman, the H2 console
                 .and()
                 .authorizeRequests() // manage access
-                .mvcMatchers( HttpMethod.POST,"/api/auth/user").permitAll()
-                .mvcMatchers("/actuator/shutdown","/h2-console/*").permitAll() // needs to run test
+                .mvcMatchers(HttpMethod.POST, "/api/auth/user").permitAll()
+                .mvcMatchers("/actuator/shutdown", "/h2-console/*").permitAll() // needs to run test
                 .mvcMatchers("/api/antifraud/transaction").hasAnyAuthority("MERCHANT")
                 .mvcMatchers("/api/auth/list").hasAnyAuthority("ADMINISTRATOR", "SUPPORT")
-                .mvcMatchers("/api/auth/user/**","/api/auth/role","/api/auth/access").hasAnyAuthority("ADMINISTRATOR")
-                .mvcMatchers("/**").authenticated()
+                .mvcMatchers("/api/antifraud/suspicious-ip/**").hasAnyAuthority("SUPPORT")
+                .mvcMatchers("/api/antifraud/stolencard/**").hasAnyAuthority("SUPPORT")
+                .mvcMatchers("/api/auth/user/**", "/api/auth/role", "/api/auth/access").hasAnyAuthority("ADMINISTRATOR")
+//                .mvcMatchers("/**").authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS); // no session
     }
+
     @Bean
     public PasswordEncoder getEncoder() {
         return new BCryptPasswordEncoder();
